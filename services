@@ -1,0 +1,98 @@
+services:
+  pgdatabase:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=de_user
+      - POSTGRES_PASSWORD=de_pas
+      - POSTGRES_DB=taxi_db
+    volumes:
+      - "./ny_taxi_postgres_data:/var/lib/postgresql/data:rw"
+    ports:
+      - "5432:5432"
+
+
+Datasets: wget https://github.com/DataTalksClub/nyc-tlc-data/releases/download/green/green_tripdata_2019-01.csv.gz
+Dataset zones: wget https://s3.amazonaws.com/nyc-tlc/misc/taxi+_zone_lookup.csv
+
+#Running Postgres with Docker
+docker run -it \
+  -e POSTGRES_USER="de_user_pg" \
+  -e POSTGRES_PASSWORD="de_pas_pg" \
+  -e POSTGRES_DB="taxi_db" \
+  -v $(pwd)/ny_taxi_postgres_data:/var/lib/postgresql/data \
+  -p 5432:5432 \
+  postgres:15
+
+#Installing pgcli
+brew install pgcli
+
+#Connect to Postgres
+pgcli -h localhost -p 5432 -u de_user_pg -d taxi_db
+
+#Running pgAdmin
+docker run -it \
+  -e PGADMIN_DEFAULT_EMAIL="admin@admin.com" \
+  -e PGADMIN_DEFAULT_PASSWORD="root" \
+  -p 8080:80 \
+  dpage/pgadmin4
+
+#Running Postgres and pgAdmin together in network
+#Create a network
+docker network create taxi_net
+
+#Run Postgres
+docker run -it \
+  -e POSTGRES_USER="de_user_pg" \
+  -e POSTGRES_PASSWORD="de_pas_pg" \
+  -e POSTGRES_DB="taxi_db" \
+  -v $(pwd)/ny_taxi_postgres_data:/var/lib/postgresql/data \
+  -p 5432:5432 \
+  --network=taxi_net \
+  --name taxi-database \
+  postgres:15
+
+#Run pgAdmin
+docker run -it \
+  -e PGADMIN_DEFAULT_EMAIL="admin@admin.com" \
+  -e PGADMIN_DEFAULT_PASSWORD="root" \
+  -p 8080:80 \
+  --network=taxi_net \
+  --name pgadmin \
+  dpage/pgadmin4
+
+  
+#convert jupyter script to the file
+jupyter nbconvert --to=script ingest_taxi_data.ipynb
+jupyter nbconvert --to=script ingest_zones.ipynb
+
+#script for taxi data source
+URL='https://github.com/DataTalksClub/nyc-tlc-data/releases/download/green/green_tripdata_2019-01.csv.gz'
+python3 ingest_taxi_data.py \
+  --user=de_user_pg \
+  --password=de_pas_pg \
+  --host=localhost \
+  --port=5432 \
+  --db=taxi_db \
+  --table_name=green_taxi \
+  --url=${URL}
+#password
+#host
+#port
+#database name
+#table name.
+#url of the csv
+
+#build container taxi_container:v001
+docker build -t taxi_container:v001 . 
+
+#run container taxi_container:v001
+docker run -it \
+  --network=taxi_net \
+  taxi_container:v001 \
+    --user=de_user_pg \
+    --password=de_pas_pg \
+    --host=taxi-database \
+    --port=5432 \
+    --db=taxi_db \
+    --table_name=green_taxi \
+    --url=${URL}
