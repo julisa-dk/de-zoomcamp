@@ -1,3 +1,6 @@
+<<<<<<< Updated upstream
+# de-zoomcamp
+=======
 # de-zoomcamp
 
 1. Setup Docker
@@ -7,6 +10,7 @@
 5. Create the script for loading dataset from URL 
 
 Datasets: wget https://github.com/DataTalksClub/nyc-tlc-data/releases/download/green/green_tripdata_2019-01.csv.gz
+
 Dataset zones: wget https://s3.amazonaws.com/nyc-tlc/misc/taxi+_zone_lookup.csv
 
 6. Setup pgAdmin
@@ -22,3 +26,4 @@ docker build -t taxi_container:v001 .
 
 11. Create docker-compose.yaml
 12. Run docker-compose and connect to pgAdmin manually
+>>>>>>> Stashed changes
