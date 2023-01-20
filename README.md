@@ -1,11 +1,8 @@
-<<<<<<< Updated upstream
-# de-zoomcamp
-=======
 # de-zoomcamp
 
 1. Setup Docker
 2. Run docker container with Ubuntu, Python3, pandas images
-3. Install (for macOS): brew install pgcli
+3. Install (for macOS): brew install pgcliCancel changes
 4. Create the Dockerfile
 5. Create the script for loading dataset from URL 
 
@@ -26,4 +23,3 @@ docker build -t taxi_container:v001 .
 
 11. Create docker-compose.yaml
 12. Run docker-compose and connect to pgAdmin manually
->>>>>>> Stashed changes
